@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Card from "./Card";
 
 const Modal = () => {
   const [error, setError] = useState(null);
@@ -7,20 +8,24 @@ const Modal = () => {
 
   useEffect(() => {
     fetch(
-      `https://api.spoonacular.com/recipes/{id}/information?includeNutrition=true&apiKey=5d7d6fdfdb7344eb83cc81d23aba5e70`
+      `https://api.spoonacular.com/recipes/autocomplete?apiKey=5d7d6fdfdb7344eb83cc81d23aba5e70&number=5&query=${meals}`
     )
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then(
-        (result) => {
+        (data) => {
           setIsLoaded(true);
-          setMeals(result);
+          setMeals(data);
         },
         (error) => {
           setIsLoaded(true);
           setError(error);
         }
       );
-  }, []);
+  }, [meals]);
+
+  function handleChange(event) {
+    setMeals(event.target.value);
+  }
 
   if (error) {
     return <>{error.message}</>;
@@ -29,32 +34,16 @@ const Modal = () => {
   } else {
     return (
       <div className="wrapper">
-        <ul className="card-grid">
-          {meals.map((meal) => (
-            <li>
-              <article className="card" key={meal.id}>
-                <div className="card-image">
-                  <img src={meal.image} alt={meal.title} />
-                </div>
-                <div className="card-content">
-                  <h2 className="card-name">{meal.title}</h2>
-                  <p className="card-summary">{meal.sourceUrl}</p>
-                  <ol className="card-nutrition">
-                    <li className="card-nutrition-name">
-                      {meal.nutrition.nutrients[0].name}
-                    </li>
-                    <li className="card-nutrition-amount">
-                      {meal.nutrition.nutrients[0].amount}
-                    </li>
-                    <li className="card-nutrition-unit">
-                      {meal.nutrition.nutrients[0].unit}
-                    </li>
-                  </ol>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ul>
+        <div className="control">
+          <input
+            className="input-field"
+            type="text"
+            placeholder="Search for a meal..."
+            onChange={handleChange}
+          />
+          <button /*  onClick={getMeal} */>Submit</button>
+        </div>
+        {meals && <Card meals={meals} />}
       </div>
     );
   }
